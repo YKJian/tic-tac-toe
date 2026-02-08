@@ -4,14 +4,10 @@ namespace tictactoe
 {
     public class BootstrapState : StateBase
     {
-        [SerializeField] private PlayerController m_playerController;
-        
         private GameStateMachine m_gameStateMachine;
 
         public override void Initialize(GameStateMachine gameStateMachine)
         {
-            m_playerController.enabled = false;
-
             m_gameStateMachine = gameStateMachine;
         }
 

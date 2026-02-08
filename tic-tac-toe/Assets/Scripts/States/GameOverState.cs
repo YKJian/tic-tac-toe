@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +6,8 @@ namespace tictactoe
     public class GameOverState : StateBase
     {
         [SerializeField] private GameObject m_gameOverPanel;
-        [SerializeField] private RawImage m_winner;
+        [SerializeField] private Image m_winner;
+        [SerializeField] private Button m_backToMenu;
         [SerializeField] private Button m_retry;
 
         private GameStateMachine m_gameStateMachine;
@@ -21,18 +21,25 @@ namespace tictactoe
         public override void Enter()
         {
             m_gameOverPanel.SetActive(true);
-            m_retry.onClick.AddListener(OnClicked);
+            m_backToMenu.onClick.AddListener(OnBackToMenu);
+            m_retry.onClick.AddListener(OnRetry);
         }
 
         public override void Exit()
         {
             m_gameOverPanel.SetActive(false);
-            m_retry.onClick.RemoveListener(OnClicked);
+            m_backToMenu.onClick.RemoveListener(OnBackToMenu);
+            m_retry.onClick.RemoveListener(OnRetry);
         }
 
-        private void OnClicked()
+        private void OnBackToMenu()
         {
             m_gameStateMachine.Enter<MainMenuState>();
+        }
+
+        private void OnRetry()
+        {
+            m_gameStateMachine.Enter<GameplayState>();
         }
     }
 }
