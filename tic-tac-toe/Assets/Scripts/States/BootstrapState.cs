@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace tictactoe
 {
     public class BootstrapState : StateBase

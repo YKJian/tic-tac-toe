@@ -21,7 +21,7 @@ namespace tictactoe
         {
             m_mainMenuRoot.SetActive(true);
 
-            m_startButton.onClick.AddListener(OnClicked);
+            m_startButton.onClick.AddListener(OnStart);
             m_exitButton.onClick.AddListener(OnExit);
         }
 
@@ -29,11 +29,11 @@ namespace tictactoe
         {
             m_mainMenuRoot.SetActive(false);
 
-            m_startButton.onClick.RemoveListener(OnClicked);
+            m_startButton.onClick.RemoveListener(OnStart);
             m_exitButton.onClick.RemoveListener(OnExit);
         }
 
-        private void OnClicked()
+        private void OnStart()
         {
             m_gameStateMachine.Enter<GameplayState>();
         }

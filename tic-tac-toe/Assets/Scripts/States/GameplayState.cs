@@ -5,6 +5,7 @@ namespace tictactoe
 {
     public class GameplayState: StateBase
     {
+        [SerializeField] private LevelController m_levelController;
         [SerializeField] private GameObject m_gameplayPanel;
         [SerializeField] private Image[] m_playerImages;
         [SerializeField] private Button[] m_buttons;
@@ -12,7 +13,9 @@ namespace tictactoe
         private GameStateMachine m_gameStateMachine;
         private Color m_transparentColor = Color.clear;
         private Color m_opaqueColor = Color.black;
+        private int[] m_occupiedCells; // 1 or 2
         private int m_currentPlayer = 0;
+        private int m_minWinStep = 5;
         private int m_maxStep = 9;
         private int m_step = 0;
 
@@ -20,19 +23,25 @@ namespace tictactoe
         {
             m_gameplayPanel.SetActive(false);
             m_gameStateMachine = gameStateMachine;
+
+            m_occupiedCells = new int[m_buttons.Length];
         }
 
         public override void Enter()
         {
-            m_step = 0;
+            m_step = 0; 
+            m_levelController.isDraw = false;
+
             m_gameplayPanel.SetActive(true);
             m_playerImages[m_currentPlayer].enabled = true;
 
-            foreach (var button in m_buttons)
+            for (int i = 0; i < m_buttons.Length; i++)
             {
-                button.onClick.AddListener(() => OnClicked(button));
+                m_occupiedCells[i] = 0;
+                int index = i;
+                m_buttons[i].onClick.AddListener(() => OnClicked(m_buttons[index], index));
 
-                SetButton(button, m_transparentColor, true);
+                SetButton(m_buttons[i], m_transparentColor, true);
             }
         }
 
@@ -52,33 +61,40 @@ namespace tictactoe
             m_gameStateMachine.Enter<GameOverState>();
         }
 
-        private void OnClicked(Button button)
+        private void OnClicked(Button button, int index)
         {
             m_step++;
+            m_occupiedCells[index] = m_currentPlayer + 1;
+
+            if (m_step == m_maxStep && !m_levelController.CheckWin(m_occupiedCells))
+            {
+                m_levelController.isDraw = true;
+                OnFinished();
+            }
+            else if (m_step >= m_minWinStep && m_levelController.CheckWin(m_occupiedCells))
+            {
+                m_levelController.winner = m_playerImages[m_currentPlayer];
+                OnFinished();
+            }
 
             SetButton(button, m_opaqueColor, false);
             ChangeCurrentPlayer();
-
-            if (m_step == m_maxStep)
-            {
-                OnFinished();
-            }
         }
 
         private void SetButton(Button button, Color color, bool needReset)
         {
-            button.interactable = !button.interactable;
-
             Image buttonImage = button.GetComponent<Image>();
             buttonImage.color = color;
 
             if (needReset)
             {
                 buttonImage.sprite = null;
+                button.interactable = true;
             }
             else
             {
                 buttonImage.sprite = m_playerImages[m_currentPlayer].sprite;
+                button.interactable = false;
             }
         }
 
@@ -86,14 +102,7 @@ namespace tictactoe
         {
             m_playerImages[m_currentPlayer].enabled = false;
 
-            if (m_currentPlayer == 0)
-            {
-                m_currentPlayer = 1;
-            }
-            else
-            {
-                m_currentPlayer = 0;
-            }
+            m_currentPlayer = m_currentPlayer == 0 ? 1 : 0;
 
             m_playerImages[m_currentPlayer].enabled = true;
         }
